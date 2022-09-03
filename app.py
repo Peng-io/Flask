@@ -1,4 +1,4 @@
-from flask import Flask, request, session, make_response, Response, jsonify
+from flask import Flask, request, make_response, jsonify
 from flask_cors import *
 from web_sqlite import *
 import os
@@ -25,6 +25,7 @@ def login():
     print(user, password)
     if selPassword(database, user, password):
         res = make_response({"code": True, "msg": "登录成功"})
+        res.set_cookie("user", "001", max_age=60 * 60 * 24,)
         return res, 200
     else:
         return jsonify({"code": False, "msg": "账号密码错误"}), 200
