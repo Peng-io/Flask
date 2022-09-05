@@ -13,10 +13,7 @@ app.config['JSON_AS_ASCII'] = False
 def my_before_request():
     token = request.headers.get("token")
     if token:
-        if getToKen(token):
-            g.Turntable = True
-        else:
-            g.Turntable = False
+        g.Turntable = getToKen(token)
     else:
         g.Turntable = False
 
