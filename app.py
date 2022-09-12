@@ -87,5 +87,16 @@ def addStu():
         return jsonify({"code": False, "msg": "请先登录"})
 
 
+@app.route("/Score", methods=["post"])
+def Score():
+    if g.Turntable:
+        data = list()
+        for i in studnetScrore(database):
+            data.append(dict(zip(["id", "curriculum_id", "gradeNumber"], i)))
+        return jsonify({"code": True, "data": data}), 200
+    else:
+        return jsonify({"code": False, "msg": "请先登录"})
+
+
 if __name__ == '__main__':
     app.run()

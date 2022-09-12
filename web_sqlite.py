@@ -118,6 +118,13 @@ class My_sqlite:
         sql = f"SELECT * FROM student_info WHERE id='{user}'"
         return self.cursor.execute(sql).fetchall()
 
+    def studnetScrore(self) -> list:
+        """
+        返回全部学生成绩
+        """
+        sql = "SELECT * FROM grade where id='0001'"
+        return self.cursor.execute(sql).fetchall()
+
 
 # with My_sqlite("student.db") as name:name.getStudentInfo()
 
@@ -199,3 +206,14 @@ def getOneStudent(database: My_sqlite, user: str) -> list:
     """
     with database:
         return database.getOneStudent(user)
+
+
+def studnetScrore(database: My_sqlite) -> list:
+    """
+    返回全部学生成绩
+    """
+    with database:
+        return database.studnetScrore()
+
+
+
