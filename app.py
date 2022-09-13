@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, g
-from myjwt import *
 from flask_cors import *
+
+from myjwt import *
 from web_sqlite import *
 
 app = Flask(__name__)
@@ -94,6 +95,24 @@ def Score():
         for i in studnetScrore(database):
             data.append(dict(zip(["id", "curriculum_id", "gradeNumber"], i)))
         return jsonify({"code": True, "data": data}), 200
+    else:
+        return jsonify({"code": False, "msg": "请先登录"})
+
+
+@app.route("/Course", methods=["post"])
+def Course():
+    if g.Turntable:
+        return jsonify({"code": True, "data": selectCourse(database)}), 200
+    else:
+        return jsonify({"code": False, "msg": "请先登录"})
+
+
+@app.route("/getOneStudent", methods=["post"])
+def getoneStudent():
+    if g.Turntable:
+        user = request.get_json()["user"]
+        print(user)
+        return jsonify({"code": True, "data": getOneStunetScrore(database, user)}), 200
     else:
         return jsonify({"code": False, "msg": "请先登录"})
 

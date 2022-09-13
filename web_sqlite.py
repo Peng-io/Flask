@@ -111,7 +111,7 @@ class My_sqlite:
         self.cursor.execute(sql)
         self.conn.commit()
 
-    def getOneStudent(self, user: str) -> list:
+    def getOneStudentInfo(self, user: str) -> list:
         """
         获取某个学生信息
         """
@@ -123,6 +123,20 @@ class My_sqlite:
         返回全部学生成绩
         """
         sql = "SELECT * FROM grade where id='0001'"
+        return self.cursor.execute(sql).fetchall()
+
+    def selectCourse(self) -> list:
+        """
+        返回每个课程的人数
+        """
+        sql = "SELECT cur.curriculum_name,count(gr.id)  FROM grade AS gr LEFT JOIN curriculum AS cur ON gr.curriculum_id = cur.curriculum_id GROUP BY cur.curriculum_id"
+        return self.cursor.execute(sql).fetchall()
+
+    def getOneStunetScrore(self, user: str) -> list:
+        """
+        返回单个学生的各科成绩
+        """
+        sql = f"SELECT gr.id,gr.curriculum_id,gr.gradeNumber,cur.curriculum_name,cur.credit  FROM grade AS gr LEFT JOIN curriculum AS cur ON gr.curriculum_id = cur.curriculum_id WHERE id='{user}'"
         return self.cursor.execute(sql).fetchall()
 
 
@@ -200,12 +214,12 @@ def upDataStudent(database: My_sqlite, user: str, name: str, sex: str, age: str,
         database.upDataStudent(user, name, sex, age, address)
 
 
-def getOneStudent(database: My_sqlite, user: str) -> list:
+def getOneStudentInfo(database: My_sqlite, user: str) -> list:
     """
     获取某个学生信息
     """
     with database:
-        return database.getOneStudent(user)
+        return database.getOneStudentInfo(user)
 
 
 def studnetScrore(database: My_sqlite) -> list:
@@ -216,4 +230,17 @@ def studnetScrore(database: My_sqlite) -> list:
         return database.studnetScrore()
 
 
+def selectCourse(database: My_sqlite) -> list:
+    """
+    返回每个课程的人数
+    """
+    with database:
+        return database.selectCourse()
 
+
+def getOneStunetScrore(database: My_sqlite, uesr: str):
+    """
+    返回单个学生的各科成绩
+    """
+    with database:
+        return database.getOneStunetScrore(uesr)
