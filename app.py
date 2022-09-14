@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, g
+from flask import Flask, request, jsonify
 from flask_cors import *
 
 from myjwt import *
@@ -6,116 +6,125 @@ from web_sqlite import *
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, resources=r"/*")
-database = My_sqlite("studentList.db")
-app.config['JSON_AS_ASCII'] = False
+database: StudentList = StudentList("studentList.db")
+app.config["JSON_AS_ASCII"] = False
 
 
 @app.before_request
-def my_before_request():
-    token = request.headers.get("token")
-    if token:
-        g.Turntable = getToKen(token)
-    else:
-        g.Turntable = False
+def my_before_request():  # 路由守卫
+    if not request.path == "/login":
+        token = request.headers.get("token")
+        if token:
+            if not getToKen(token):
+                return jsonify({"code": False, "msg": "token过期请重新登录"})
+        else:
+            return jsonify({"code": False, "msg": "请先登录"})
 
 
-@app.route('/getStudnet', methods=["GET", "POST"])
-def hello_world():
+@app.route("/getAllStudentInfo", methods=["GET", "POST"])
+def getAllStudentInfo():  # 给前端发送全部学生的基础信息
     datalist = []
-    if g.Turntable:
-        for i in getStudentInfo(database):
+    with database:
+        data = database.getAllStudentInfo()
+        for i in data:
             datalist.append(dict(zip(["id", "name", "sex", "age", "address"], i)))
-        return jsonify({"code": True, "data": datalist}), 200
-    else:
-        return jsonify({"code": False, "msg": "请先登录"})
+    return jsonify({"code": True, "data": datalist, "msg": "获取全部学生基础信息"}), 200
+
+
+@app.route("/getOneStudentInfo", methods=["POST"])
+def getOneStudentInfo():  # 给前端发送单个学生的基础信息
+    user = request.get_json()["user"]
+    with database:
+        return jsonify({"code": True, "data": database.getOneStudentInfo(user), "msg": "获取单个学生基础信息"})
 
 
 @app.route("/login", methods=["POST"])
-def login():
+def login():  # 判断是否可以登录
     user = request.get_json()["user"]
     password = request.get_json()["password"]
-    print(user, password)
-    if selPassword(database, user, password):
-        token = setToKen(user)
-        return jsonify({"code": True, "msg": "登录成功", "token": token}), 200
-    else:
-        return jsonify({"code": False, "msg": "账号密码错误"}), 200
+    with database:
+        if database.selectPassword(user, password):
+            return jsonify({"code": True, "msg": "登录成功", "token": setToKen(user)}), 200
+        else:
+            return jsonify({"code": False, "msg": "账号密码错误"}), 200
 
 
-@app.route("/delStu", methods=["post"])
-def delStu():
-    if g.Turntable:
-        user = request.get_json()["user"]
-        print(user)
-        if delStudent(database, user):
+@app.route("/delStudent", methods=["post"])
+def delStudent():  # 删除学生（未完成）
+    user = request.get_json()["user"]
+    with database:
+        if database.delStudent(user):
             return jsonify({"code": True}), 200
         else:
             return jsonify({"code": False}), 200
-    else:
-        return jsonify({"code": False, "msg": "请先登录"})
 
 
-@app.route("/updataStu", methods=["post"])
-def updataStu():
-    if g.Turntable:
-        data = request.get_json()["data"]
-        upDataStudent(database, data["id"], data["name"], data["sex"], data["age"], data["address"])
-        return jsonify({"code": True}), 200
-    else:
-        return jsonify({"code": False, "msg": "请先登录"})
+@app.route("/upDataStudent", methods=["post"])
+def upDataStudent():  # 更新学生基础信息
+    data = request.get_json()["data"]
+    with database:
+        database.upDataStudentInfo(
+            data["id"], data["name"], data["sex"], data["age"], data["address"]
+        )
+        return jsonify({"code": True, "msg": "更新信息成功"}), 200
 
 
 @app.route("/changePassword", methods=["post"])
-def changePassword():
-    if g.Turntable:
-        user = request.get_json()["user"]
-        pad = request.get_json()["password"]
-        if chanGePassword(database, user, pad):
-            return jsonify({"code": True}), 200
+def changePassword():  # 修改管理员密码
+    user = request.get_json()["user"]
+    pad = request.get_json()["password"]
+    with database:
+        if database.changePassword(user, pad):
+            return jsonify({"code": True, "msg": "修改成功"}), 200
         else:
-            return jsonify({"code", False}), 200
-    else:
-        return jsonify({"code": False, "msg": "请先登录"})
+            return jsonify({"code": False, "msg": "修改失败"}), 200
 
 
 @app.route("/addStu", methods=["post"])
-def addStu():
-    if g.Turntable:
-        data = request.get_json()["data"]
-        intoStudentInfo(database, data["id"], data["name"], data["sex"], data["age"], data["address"])
-        return jsonify({"code": True}), 200
-    else:
-        return jsonify({"code": False, "msg": "请先登录"})
+def addStu():  # 添加学生
+    data = request.get_json()["data"]
+    with database:
+        if database.intoStudentInfo(
+                data["id"], data["name"], data["sex"], data["age"], data["address"]
+        ):
+            return jsonify({"code": True, "msg": "写入成功"}), 200
+        else:
+            return jsonify({"code": True, "msg": "写入失败"}), 200
 
 
-@app.route("/Score", methods=["post"])
-def Score():
-    if g.Turntable:
-        data = list()
-        for i in studnetScrore(database):
+@app.route("/getAllCourse", methods=["post"])
+def getAllCourse():  # 给前端发送每个课程的人数
+    with database:
+        return (
+            jsonify({"code": True, "data": database.getAllCourse(), "msg": "每个课程的人数"}),
+            200,
+        )
+
+
+@app.route("/getAllStudentScore", methods=["post"])
+def getAllStudentScore():  # 未完成 单个课程全部学生的成绩
+    data = list()
+    with database:
+        for i in database.getAllStudentScore():
             data.append(dict(zip(["id", "curriculum_id", "gradeNumber"], i)))
-        return jsonify({"code": True, "data": data}), 200
-    else:
-        return jsonify({"code": False, "msg": "请先登录"})
+    return jsonify({"code": True, "data": data, }), 200
 
 
-@app.route("/Course", methods=["post"])
-def Course():
-    if g.Turntable:
-        return jsonify({"code": True, "data": selectCourse(database)}), 200
-    else:
-        return jsonify({"code": False, "msg": "请先登录"})
+@app.route("/getOneStudentScore", methods=["post"])
+def getOneStudentScore():  # 单个学生全部选课成绩
+    user = request.get_json()["user"]
+    with database:
+        return (
+            jsonify(
+                {
+                    "code": True,
+                    "data": database.getOneStudentScore(user),
+                    "msg": "",
+                }
+            ),
+            200,
+        )
 
 
-@app.route("/getOneStudent", methods=["post"])
-def getoneStudent():
-    if g.Turntable:
-        user = request.get_json()["user"]
-        print(user)
-        return jsonify({"code": True, "data": getOneStunetScrore(database, user)}), 200
-    else:
-        return jsonify({"code": False, "msg": "请先登录"})
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()

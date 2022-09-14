@@ -1,12 +1,12 @@
 import sqlite3
 
 
-class My_sqlite:
-    def __init__(self, sqlName):
-        self.sqlName = sqlName
+class StudentList:
+    def __init__(self, name):
+        self.name = name
 
     def __enter__(self):
-        self.conn = sqlite3.connect(self.sqlName)
+        self.conn = sqlite3.connect(self.name)
         self.cursor = self.conn.cursor()
         return self
 
@@ -28,7 +28,7 @@ class My_sqlite:
 
     def login(self, user: str) -> bool:
         """
-        判断某个学号是否可以登录(web表)
+        判断某个学号是否存在(web表)
         """
         sql = f"select count(*) from web_db where No='{user}' limit 1"
         if self.cursor.execute(sql).fetchall()[0][0] == 1:
@@ -36,7 +36,7 @@ class My_sqlite:
         else:
             return False
 
-    def selPassword(self, user: str, paw: str) -> bool:
+    def selectPassword(self, user: str, paw: str) -> bool:
         """
         查询输入的密码与数据库的密码是否一致。相同返回Ture
         """
@@ -46,15 +46,22 @@ class My_sqlite:
         else:
             return False
 
-    def getStudentInfo(self) -> list:
+    def getAllStudentInfo(self) -> list:
         """
-        返回数据库里的学生信息
+        获取全部学生信息的基础信息
         """
         sql = "SELECT id,name,sex,age,address FROM student_info ORDER BY id asc"
         date = self.cursor.execute(sql).fetchall()
         return date
 
-    def chanGePassword(self, user: str, pad: str) -> bool:
+    def getOneStudentInfo(self, user: str) -> list:
+        """
+        获取某个学生的基础信息
+        """
+        sql = f"SELECT * FROM student_info WHERE id='{user}'"
+        return self.cursor.execute(sql).fetchall()
+
+    def changePassword(self, user: str, pad: str) -> bool:
         """
         修改登录密码
         """
@@ -66,9 +73,11 @@ class My_sqlite:
         self.conn.commit()
         return True
 
-    def intoStudentInfo(self, user: str, name: str, sex: str, age: str, address: str) -> bool:
+    def intoStudentInfo(
+            self, user: str, name: str, sex: str, age: str, address: str
+    ) -> bool:
         """
-        往数据库中写入学生信息
+        写入学生信息
         """
         sql = f"INSERT INTO student_info (id,name,sex,age,address) VALUES('{user}','{name}','{sex}','{age}','{address}')"
         try:
@@ -78,7 +87,7 @@ class My_sqlite:
         self.conn.commit()
         return True
 
-    def stuinMysql(self, user: str) -> bool:
+    def selectIn(self, user: str) -> bool:
         """
         判断某个学号是否存在于数据库中(student_info表) 存在return Ture
         """
@@ -90,7 +99,7 @@ class My_sqlite:
 
     def delStudent(self, user: str) -> bool:
         """
-        删除学生信息
+        删除单个学生信息
         """
         if self.stuinMysql(user):
             sql = f"DELETE FROM student_info WHERE id='{user}'"
@@ -103,144 +112,33 @@ class My_sqlite:
         else:
             return False
 
-    def upDataStudent(self, user: str, name: str, sex: str, age: str, address: str) -> None:
+    def upDataStudentInfo(
+            self, user: str, name: str, sex: str, age: str, address: str
+    ) -> None:
         """
-        更新学生信息
+        更新单个学生信息
         """
         sql = f"UPDATE student_info set name='{name}',sex='{sex}',age='{age}',address='{address}' WHERE id='{user}'"
         self.cursor.execute(sql)
         self.conn.commit()
 
-    def getOneStudentInfo(self, user: str) -> list:
+    def getAllCourse(self) -> list:
         """
-        获取某个学生信息
-        """
-        sql = f"SELECT * FROM student_info WHERE id='{user}'"
-        return self.cursor.execute(sql).fetchall()
-
-    def studnetScrore(self) -> list:
-        """
-        返回全部学生成绩
-        """
-        sql = "SELECT * FROM grade where id='0001'"
-        return self.cursor.execute(sql).fetchall()
-
-    def selectCourse(self) -> list:
-        """
-        返回每个课程的人数
+        获取每个课程的人数
         """
         sql = "SELECT cur.curriculum_name,count(gr.id)  FROM grade AS gr LEFT JOIN curriculum AS cur ON gr.curriculum_id = cur.curriculum_id GROUP BY cur.curriculum_id"
         return self.cursor.execute(sql).fetchall()
 
-    def getOneStunetScrore(self, user: str) -> list:
+    def getAllStudentScore(self) -> list:
         """
-        返回单个学生的各科成绩
+        获取单个课程全部学生的成绩 未完成
+        """
+        sql = "SELECT * FROM grade where id='0001'"
+        return self.cursor.execute(sql).fetchall()
+
+    def getOneStudentScore(self, user: str) -> list:
+        """
+        获取单个学生的课程成绩
         """
         sql = f"SELECT gr.id,gr.curriculum_id,gr.gradeNumber,cur.curriculum_name,cur.credit  FROM grade AS gr LEFT JOIN curriculum AS cur ON gr.curriculum_id = cur.curriculum_id WHERE id='{user}'"
         return self.cursor.execute(sql).fetchall()
-
-
-# with My_sqlite("student.db") as name:name.getStudentInfo()
-
-def register(database: My_sqlite, user: str, paw: str) -> bool:
-    """
-    注册信息(学号,密码) 成功返回Ture
-    """
-    with database:
-        return database.register(user, paw)
-
-
-def loGin(database: My_sqlite, user: str) -> bool:
-    """
-    判断某个学号是否可以登录(web表)
-    """
-    with database:
-        return database.login(user)
-
-
-def selPassword(database: My_sqlite, user: str, paw: str) -> bool:
-    """
-    查询输入的密码与数据库的密码是否一致。相同返回Ture
-    """
-    with database:
-        return database.selPassword(user, paw)
-
-
-def getStudentInfo(database: My_sqlite) -> tuple:
-    """
-    返回数据库里的学生信息
-    """
-    with database:
-        return database.getStudentInfo()
-
-
-def chanGePassword(database: My_sqlite, user: str, pad: str) -> bool:
-    """
-    修改登录密码
-    """
-    with database:
-        return database.chanGePassword(user, pad)
-
-
-def intoStudentInfo(database: My_sqlite, user: str, name: str, sex: str, age: str, address: str) -> bool:
-    """
-    往数据库中写入学生信息
-    """
-    with database:
-        return database.intoStudentInfo(user, name, sex, age, address)
-
-
-def stuinMysql(database: My_sqlite, user: str) -> bool:
-    """
-    判断某个学号是否存在于数据库中(student_info表) 存在return Ture
-    """
-    with database:
-        return database.stuinMysql(user)
-
-
-def delStudent(database: My_sqlite, user: str) -> bool:
-    """
-    删除学生信息
-    """
-    with database:
-        return database.delStudent(user)
-
-
-def upDataStudent(database: My_sqlite, user: str, name: str, sex: str, age: str, address: str) -> None:
-    """
-     更新学生信息
-    """
-    with database:
-        database.upDataStudent(user, name, sex, age, address)
-
-
-def getOneStudentInfo(database: My_sqlite, user: str) -> list:
-    """
-    获取某个学生信息
-    """
-    with database:
-        return database.getOneStudentInfo(user)
-
-
-def studnetScrore(database: My_sqlite) -> list:
-    """
-    返回全部学生成绩
-    """
-    with database:
-        return database.studnetScrore()
-
-
-def selectCourse(database: My_sqlite) -> list:
-    """
-    返回每个课程的人数
-    """
-    with database:
-        return database.selectCourse()
-
-
-def getOneStunetScrore(database: My_sqlite, uesr: str):
-    """
-    返回单个学生的各科成绩
-    """
-    with database:
-        return database.getOneStunetScrore(uesr)
