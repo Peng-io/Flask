@@ -101,7 +101,7 @@ class StudentList:
         """
         删除单个学生信息
         """
-        if self.stuinMysql(user):
+        if self.selectIn(user):
             sql = f"DELETE FROM student_info WHERE id='{user}'"
             try:
                 self.cursor.execute(sql)
@@ -126,19 +126,22 @@ class StudentList:
         """
         获取每个课程的人数
         """
-        sql = "SELECT cur.curriculum_name,count(gr.id)  FROM grade AS gr LEFT JOIN curriculum AS cur ON gr.curriculum_id = cur.curriculum_id GROUP BY cur.curriculum_id"
+        sql = "SELECT cur.curriculum_name,cur.curriculum_id,count(gr.id)  FROM grade AS gr JOIN curriculum AS cur ON " \
+              "gr.curriculum_id = cur.curriculum_id GROUP BY cur.curriculum_id "
         return self.cursor.execute(sql).fetchall()
 
     def getAllStudentScore(self) -> list:
         """
         获取单个课程全部学生的成绩 未完成
         """
-        sql = "SELECT * FROM grade where id='0001'"
+        sql = ""
         return self.cursor.execute(sql).fetchall()
 
-    def getOneStudentScore(self, user: str) -> list:
+    def getOneStudentScore(self, user: str) -> dict:
         """
-        获取单个学生的课程成绩
+        获取单个学生的课程成绩和基础信息
         """
-        sql = f"SELECT gr.id,gr.curriculum_id,gr.gradeNumber,cur.curriculum_name,cur.credit  FROM grade AS gr LEFT JOIN curriculum AS cur ON gr.curriculum_id = cur.curriculum_id WHERE id='{user}'"
-        return self.cursor.execute(sql).fetchall()
+        sql = f"SELECT cur.curriculum_name,gr.curriculum_id,gr.gradeNumber,cur.credit  FROM grade AS gr LEFT " \
+              f"JOIN curriculum AS cur ON gr.curriculum_id = cur.curriculum_id WHERE id='{user}' "
+        info = f"SELECT id,name FROM student_info WHERE id='{user}'"
+        return {"info": self.cursor.execute(info).fetchall(), "grade": self.cursor.execute(sql).fetchall()}

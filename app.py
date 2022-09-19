@@ -127,4 +127,4 @@ def getOneStudentScore():  # 单个学生全部选课成绩
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')
