@@ -2,11 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import *
 
 from myjwt import *
-from web_sqlite import *
+from web_sqlite import StudentList
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, resources=r"/*")
-database: StudentList = StudentList("studentList.db")
 app.config["JSON_AS_ASCII"] = False
 
 
@@ -24,7 +23,7 @@ def my_before_request():  # 路由守卫
 @app.route("/getAllStudentInfo", methods=["GET", "POST"])
 def getAllStudentInfo():  # 给前端发送全部学生的基础信息
     datalist = []
-    with database:
+    with StudentList() as database:
         data = database.getAllStudentInfo()
         for i in data:
             datalist.append(dict(zip(["id", "name", "sex", "age", "address"], i)))
@@ -34,7 +33,7 @@ def getAllStudentInfo():  # 给前端发送全部学生的基础信息
 @app.route("/getOneStudentInfo", methods=["POST"])
 def getOneStudentInfo():  # 给前端发送单个学生的基础信息
     user = request.get_json()["user"]
-    with database:
+    with StudentList() as database:
         return jsonify({"code": True, "data": database.getOneStudentInfo(user), "msg": "获取单个学生基础信息"})
 
 
@@ -42,7 +41,7 @@ def getOneStudentInfo():  # 给前端发送单个学生的基础信息
 def login():  # 判断是否可以登录
     user = request.get_json()["user"]
     password = request.get_json()["password"]
-    with database:
+    with StudentList() as database:
         if database.selectPassword(user, password):
             return jsonify({"code": True, "msg": "登录成功", "token": setToKen(user)}), 200
         else:
@@ -52,7 +51,7 @@ def login():  # 判断是否可以登录
 @app.route("/delStudent", methods=["post"])
 def delStudent():  # 删除学生（未完成）
     user = request.get_json()["user"]
-    with database:
+    with StudentList() as database:
         if database.delStudent(user):
             return jsonify({"code": True}), 200
         else:
@@ -62,7 +61,7 @@ def delStudent():  # 删除学生（未完成）
 @app.route("/upDataStudent", methods=["post"])
 def upDataStudent():  # 更新学生基础信息
     data = request.get_json()["data"]
-    with database:
+    with StudentList() as database:
         database.upDataStudentInfo(
             data["id"], data["name"], data["sex"], data["age"], data["address"]
         )
@@ -73,7 +72,7 @@ def upDataStudent():  # 更新学生基础信息
 def changePassword():  # 修改管理员密码
     user = request.get_json()["user"]
     pad = request.get_json()["password"]
-    with database:
+    with StudentList() as database:
         if database.changePassword(user, pad):
             return jsonify({"code": True, "msg": "修改成功"}), 200
         else:
@@ -83,7 +82,7 @@ def changePassword():  # 修改管理员密码
 @app.route("/addStu", methods=["post"])
 def addStu():  # 添加学生
     data = request.get_json()["data"]
-    with database:
+    with StudentList() as database:
         if database.intoStudentInfo(
                 data["id"], data["name"], data["sex"], data["age"], data["address"]
         ):
@@ -94,7 +93,7 @@ def addStu():  # 添加学生
 
 @app.route("/getAllCourse", methods=["post"])
 def getAllCourse():  # 给前端发送每个课程的人数
-    with database:
+    with StudentList() as database:
         return (
             jsonify({"code": True, "data": database.getAllCourse(), "msg": "每个课程的人数"}),
             200,
@@ -104,7 +103,7 @@ def getAllCourse():  # 给前端发送每个课程的人数
 @app.route("/getAllStudentScore", methods=["post"])
 def getAllStudentScore():  # 未完成 单个课程全部学生的成绩
     data = list()
-    with database:
+    with StudentList() as database:
         for i in database.getAllStudentScore():
             data.append(dict(zip(["id", "curriculum_id", "gradeNumber"], i)))
     return jsonify({"code": True, "data": data, }), 200
@@ -113,7 +112,7 @@ def getAllStudentScore():  # 未完成 单个课程全部学生的成绩
 @app.route("/getOneStudentScore", methods=["post"])
 def getOneStudentScore():  # 单个学生全部选课成绩
     user = request.get_json()["user"]
-    with database:
+    with StudentList() as database:
         return (
             jsonify(
                 {
