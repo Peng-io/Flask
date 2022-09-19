@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="studentList" uuid="3519320b-f421-4b89-b5dc-6b05990c18d9">
+    <data-source source="LOCAL" name="studentList.db" uuid="d6d79cc9-e329-446f-8821-3f29002c9227">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:D:\源文件\前端\flask_vue3\studentList.db</jdbc-url>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/studentList.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
-      <libraries>
-        <library>
-          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.38.0/sqlite-jdbc-3.38.0.jar</url>
-        </library>
-      </libraries>
     </data-source>
   </component>
 </project>
