@@ -2,8 +2,8 @@ import sqlite3
 
 
 class StudentList:
-    def __init__(self):
-        self.name = "studentList.db"
+    def __init__(self, name):
+        self.name = name
 
     def __enter__(self):
         self.conn = sqlite3.connect(self.name)
@@ -21,7 +21,7 @@ class StudentList:
         sql = f"insert into web_db(No,pad) values('{user}','{paw}');"
         try:
             self.cursor.execute(sql)
-        except sqlite3.IntegrityError:
+        except:
             return False
         self.conn.commit()
         return True
@@ -68,7 +68,7 @@ class StudentList:
         sql = f"update web_db set pad = '{pad}' where No= '{user}'"
         try:
             self.cursor.execute(sql)
-        except sqlite3.DataError:  # 因处理数据问题引起的错误引发异常
+        except:
             return False
         self.conn.commit()
         return True
@@ -79,11 +79,10 @@ class StudentList:
         """
         写入学生信息
         """
-        sql = f"INSERT INTO student_info (id,name,sex,age,address) /" \
-              f"fVALUES('{user}','{name}','{sex}','{age}','{address}')"
+        sql = f"INSERT INTO student_info (id,name,sex,age,address) VALUES('{user}','{name}','{sex}','{age}','{address}')"
         try:
             self.cursor.execute(sql)
-        except sqlite3.IntegrityError:  # 当数据库的关系完整性受到影响时引发异常
+        except:
             return False
         self.conn.commit()
         return True
@@ -106,7 +105,7 @@ class StudentList:
             sql = f"DELETE FROM student_info WHERE id='{user}'"
             try:
                 self.cursor.execute(sql)
-            except sqlite3.OperationalError:  # 无法处理事务
+            except:
                 return False
             self.conn.commit()
             return True
@@ -120,12 +119,8 @@ class StudentList:
         更新单个学生信息
         """
         sql = f"UPDATE student_info set name='{name}',sex='{sex}',age='{age}',address='{address}' WHERE id='{user}'"
-        try:
-            self.cursor.execute(sql)
-        except Exception as e:
-            print(e)
-        else:
-            self.conn.commit()
+        self.cursor.execute(sql)
+        self.conn.commit()
 
     def getAllCourse(self) -> list:
         """

@@ -1,6 +1,5 @@
-import time
-
 import jwt
+import time
 
 myKey = "ifjhasiufhsaiufnASIFUHasui"
 
@@ -8,7 +7,6 @@ header = {
     "typ": "JWT",
     "alg": "HS256"
 }
-
 
 def MyPayLoad(user: str) -> dict:
     return {
@@ -25,8 +23,7 @@ def setToKen(user: str) -> str:
 def getToKen(key: str) -> bool:
     try:
         data = jwt.decode(key, myKey, algorithms="HS256")
-    except Exception as e:
-        print(e)
+    except:
         return False
     else:
         if data.pop("ext") < time.time():
