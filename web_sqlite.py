@@ -80,7 +80,7 @@ class StudentList:
         写入学生信息
         """
         sql = f"INSERT INTO student_info (id,name,sex,age,address) /" \
-              f"fVALUES('{user}','{name}','{sex}','{age}','{address}')"
+              f"VALUES('{user}','{name}','{sex}','{age}','{address}')"
         try:
             self.cursor.execute(sql)
         except sqlite3.IntegrityError:  # 当数据库的关系完整性受到影响时引发异常
