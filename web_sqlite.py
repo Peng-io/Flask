@@ -135,12 +135,14 @@ class StudentList:
               "gr.curriculum_id = cur.curriculum_id GROUP BY cur.curriculum_id "
         return self.cursor.execute(sql).fetchall()
 
-    def getAllStudentScore(self) -> list:
+    def getAllStudentScore(self, user: str) -> list:
         """
-        获取单个课程全部学生的成绩 未完成
+        获取单个课程全部学生的成绩
         """
-        sql = ""
-        return self.cursor.execute(sql).fetchall()
+        sql = f"SELECT student_info.id 学号,name 姓名,curriculum_id 课程编号,gradeNumber 课程成绩 " \
+              f"FROM grade LEFT JOIN student_info on grade.id = student_info.id WHERE curriculum_id = '{user}'"
+        sql2 = f"SELECT curriculum_name FROM curriculum WHERE curriculum_id = '{user}'"
+        return [self.cursor.execute(sql2).fetchall()[0][0], self.cursor.execute(sql).fetchall()]
 
     def getOneStudentScore(self, user: str) -> dict:
         """

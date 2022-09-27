@@ -53,9 +53,9 @@ def delStudent():  # 删除学生（未完成）
     user = request.get_json()["user"]
     with StudentList() as database:
         if database.delStudent(user):
-            return jsonify({"code": True}), 200
+            return jsonify({"code": True, "msg": "删除成功"}), 200
         else:
-            return jsonify({"code": False}), 200
+            return jsonify({"code": False, "msg": "删除失败"}), 200
 
 
 @app.route("/upDataStudent", methods=["post"])
@@ -101,12 +101,11 @@ def getAllCourse():  # 给前端发送每个课程的人数
 
 
 @app.route("/getAllStudentScore", methods=["post"])
-def getAllStudentScore():  # 未完成 单个课程全部学生的成绩
-    data = list()
+def getAllStudentScore():  # 单个课程全部学生的成绩
+    user = request.get_json()["user"]
     with StudentList() as database:
-        for i in database.getAllStudentScore():
-            data.append(dict(zip(["id", "curriculum_id", "gradeNumber"], i)))
-    return jsonify({"code": True, "data": data, }), 200
+        print(database.getAllStudentScore(user))
+        return jsonify({"code": True, "data": database.getAllStudentScore(user)}), 200
 
 
 @app.route("/getOneStudentScore", methods=["post"])
@@ -118,7 +117,7 @@ def getOneStudentScore():  # 单个学生全部选课成绩
                 {
                     "code": True,
                     "data": database.getOneStudentScore(user),
-                    "msg": "",
+                    "msg": "单个学生全部选课成绩",
                 }
             ),
             200,
@@ -126,4 +125,4 @@ def getOneStudentScore():  # 单个学生全部选课成绩
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0")
