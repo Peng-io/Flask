@@ -1,11 +1,11 @@
 from flask import Flask, request, jsonify
-from flask_cors import *
+from flask_cors import CORS
 
 from myjwt import setToKen, getToKen
 from web_sqlite import StudentList
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, resources=r"/*")
+CORS(app, supports_credentials=True)
 app.config["JSON_AS_ASCII"] = False
 
 
