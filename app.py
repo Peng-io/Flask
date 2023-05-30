@@ -34,7 +34,13 @@ def getAllStudentInfo():  # 给前端发送全部学生的基础信息
 def getOneStudentInfo():  # 给前端发送单个学生的基础信息
     user = request.get_json()["user"]
     with StudentList() as database:
-        return jsonify({"code": True, "data": database.getOneStudentInfo(user), "msg": "获取单个学生基础信息"})
+        return jsonify(
+            {
+                "code": True,
+                "data": database.getOneStudentInfo(user),
+                "msg": "获取单个学生基础信息",
+            }
+        )
 
 
 @app.route("/login", methods=["POST"])
@@ -49,7 +55,7 @@ def login():  # 判断是否可以登录
 
 
 @app.route("/delStudent", methods=["post"])
-def delStudent():  # 删除学生（未完成）
+def delStudent():  # 删除学生
     user = request.get_json()["user"]
     with StudentList() as database:
         if database.delStudent(user):
@@ -84,7 +90,7 @@ def addStu():  # 添加学生
     data = request.get_json()["data"]
     with StudentList() as database:
         if database.intoStudentInfo(
-                data["id"], data["name"], data["sex"], data["age"], data["address"]
+            data["id"], data["name"], data["sex"], data["age"], data["address"]
         ):
             return jsonify({"code": True, "msg": "写入成功"}), 200
         else:
@@ -125,4 +131,4 @@ def getOneStudentScore():  # 单个学生全部选课成绩
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=5000)

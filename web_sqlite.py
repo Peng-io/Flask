@@ -74,13 +74,15 @@ class StudentList:
         return True
 
     def intoStudentInfo(
-            self, user: str, name: str, sex: str, age: str, address: str
+        self, user: str, name: str, sex: str, age: str, address: str
     ) -> bool:
         """
         写入学生信息
         """
-        sql = f"INSERT INTO student_info (id,name,sex,age,address) /" \
-              f"VALUES('{user}','{name}','{sex}','{age}','{address}')"
+        sql = (
+            f"INSERT INTO student_info (id,name,sex,age,address) /"
+            f"VALUES('{user}','{name}','{sex}','{age}','{address}')"
+        )
         try:
             self.cursor.execute(sql)
         except sqlite3.IntegrityError:  # 当数据库的关系完整性受到影响时引发异常
@@ -114,7 +116,7 @@ class StudentList:
             return False
 
     def upDataStudentInfo(
-            self, user: str, name: str, sex: str, age: str, address: str
+        self, user: str, name: str, sex: str, age: str, address: str
     ) -> None:
         """
         更新单个学生信息
@@ -131,24 +133,36 @@ class StudentList:
         """
         获取每个课程的人数
         """
-        sql = "SELECT cur.curriculum_name,cur.curriculum_id,count(gr.id)  FROM grade AS gr JOIN curriculum AS cur ON " \
-              "gr.curriculum_id = cur.curriculum_id GROUP BY cur.curriculum_id "
+        sql = (
+            "SELECT cur.curriculum_name,cur.curriculum_id,count(gr.id)  FROM grade AS gr JOIN curriculum AS cur ON "
+            "gr.curriculum_id = cur.curriculum_id GROUP BY cur.curriculum_id "
+        )
         return self.cursor.execute(sql).fetchall()
 
     def getAllStudentScore(self, user: str) -> list:
         """
         获取单个课程全部学生的成绩
         """
-        sql = f"SELECT student_info.id 学号,name 姓名,curriculum_id 课程编号,gradeNumber 课程成绩 " \
-              f"FROM grade LEFT JOIN student_info on grade.id = student_info.id WHERE curriculum_id = '{user}'"
+        sql = (
+            f"SELECT student_info.id 学号,name 姓名,curriculum_id 课程编号,gradeNumber 课程成绩 "
+            f"FROM grade LEFT JOIN student_info on grade.id = student_info.id WHERE curriculum_id = '{user}'"
+        )
         sql2 = f"SELECT curriculum_name FROM curriculum WHERE curriculum_id = '{user}'"
-        return [self.cursor.execute(sql2).fetchall()[0][0], self.cursor.execute(sql).fetchall()]
+        return [
+            self.cursor.execute(sql2).fetchall()[0][0],
+            self.cursor.execute(sql).fetchall(),
+        ]
 
     def getOneStudentScore(self, user: str) -> dict:
         """
         获取单个学生的课程成绩和基础信息
         """
-        sql = f"SELECT cur.curriculum_name,gr.curriculum_id,gr.gradeNumber,cur.credit  FROM grade AS gr LEFT " \
-              f"JOIN curriculum AS cur ON gr.curriculum_id = cur.curriculum_id WHERE id='{user}' "
+        sql = (
+            f"SELECT cur.curriculum_name,gr.curriculum_id,gr.gradeNumber,cur.credit  FROM grade AS gr LEFT "
+            f"JOIN curriculum AS cur ON gr.curriculum_id = cur.curriculum_id WHERE id='{user}' "
+        )
         info = f"SELECT id,name FROM student_info WHERE id='{user}'"
-        return {"info": self.cursor.execute(info).fetchall(), "grade": self.cursor.execute(sql).fetchall()}
+        return {
+            "info": self.cursor.execute(info).fetchall(),
+            "grade": self.cursor.execute(sql).fetchall(),
+        }
