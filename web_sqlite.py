@@ -74,7 +74,7 @@ class StudentList:
         return True
 
     def intoStudentInfo(
-        self, user: str, name: str, sex: str, age: str, address: str
+            self, user: str, name: str, sex: str, age: str, address: str
     ) -> bool:
         """
         写入学生信息
@@ -116,7 +116,7 @@ class StudentList:
             return False
 
     def upDataStudentInfo(
-        self, user: str, name: str, sex: str, age: str, address: str
+            self, user: str, name: str, sex: str, age: str, address: str
     ) -> None:
         """
         更新单个学生信息

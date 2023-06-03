@@ -27,7 +27,13 @@ def getAllStudentInfo():  # 给前端发送全部学生的基础信息
         data = database.getAllStudentInfo()
         for i in data:
             datalist.append(dict(zip(["id", "name", "sex", "age", "address"], i)))
-    return jsonify({"code": True, "data": datalist, "msg": "获取全部学生基础信息"}), 200
+    return jsonify(
+        {
+            "code": True,
+            "data": datalist,
+            "msg": "获取全部学生基础信息"
+        }
+    ), 200
 
 
 @app.route("/getOneStudentInfo", methods=["POST"])
@@ -40,7 +46,7 @@ def getOneStudentInfo():  # 给前端发送单个学生的基础信息
                 "data": database.getOneStudentInfo(user),
                 "msg": "获取单个学生基础信息",
             }
-        )
+        ), 200
 
 
 @app.route("/login", methods=["POST"])
@@ -68,9 +74,7 @@ def delStudent():  # 删除学生
 def upDataStudent():  # 更新学生基础信息
     data = request.get_json()["data"]
     with StudentList() as database:
-        database.upDataStudentInfo(
-            data["id"], data["name"], data["sex"], data["age"], data["address"]
-        )
+        database.upDataStudentInfo(data["id"], data["name"], data["sex"], data["age"], data["address"])
         return jsonify({"code": True, "msg": "更新信息成功"}), 200
 
 
@@ -89,45 +93,47 @@ def changePassword():  # 修改管理员密码
 def addStu():  # 添加学生
     data = request.get_json()["data"]
     with StudentList() as database:
-        if database.intoStudentInfo(
-            data["id"], data["name"], data["sex"], data["age"], data["address"]
-        ):
+        if database.intoStudentInfo(data["id"], data["name"], data["sex"], data["age"], data["address"]):
             return jsonify({"code": True, "msg": "写入成功"}), 200
         else:
-            return jsonify({"code": True, "msg": "写入失败"}), 200
+            return jsonify({"code": False, "msg": "写入失败"}), 200
 
 
 @app.route("/getAllCourse", methods=["post"])
 def getAllCourse():  # 给前端发送每个课程的人数
     with StudentList() as database:
-        return (
-            jsonify({"code": True, "data": database.getAllCourse(), "msg": "每个课程的人数"}),
-            200,
-        )
+        return jsonify(
+            {
+                "code": True,
+                "data": database.getAllCourse(),
+                "msg": "每个课程的人数"
+            }
+        ), 200
 
 
 @app.route("/getAllStudentScore", methods=["post"])
 def getAllStudentScore():  # 单个课程全部学生的成绩
     user = request.get_json()["user"]
     with StudentList() as database:
-        print(database.getAllStudentScore(user))
-        return jsonify({"code": True, "data": database.getAllStudentScore(user)}), 200
+        return jsonify(
+            {
+                "code": True,
+                "data": database.getAllStudentScore(user)
+            }
+        ), 200
 
 
 @app.route("/getOneStudentScore", methods=["post"])
 def getOneStudentScore():  # 单个学生全部选课成绩
     user = request.get_json()["user"]
     with StudentList() as database:
-        return (
-            jsonify(
-                {
-                    "code": True,
-                    "data": database.getOneStudentScore(user),
-                    "msg": "单个学生全部选课成绩",
-                }
-            ),
-            200,
-        )
+        return jsonify(
+            {
+                "code": True,
+                "data": database.getOneStudentScore(user),
+                "msg": "单个学生全部选课成绩",
+            }
+        ), 200,
 
 
 if __name__ == "__main__":
