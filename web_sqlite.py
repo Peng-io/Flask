@@ -36,7 +36,7 @@ class StudentList:
         else:
             return False
 
-    def selectPassword(self, user: str, paw: str) -> bool:
+    def select_password(self, user: str, paw: str) -> bool:
         """
         查询输入的密码与数据库的密码是否一致。相同返回Ture
         """
@@ -46,7 +46,7 @@ class StudentList:
         else:
             return False
 
-    def getAllStudentInfo(self) -> list:
+    def get_all_student_info(self) -> list:
         """
         获取全部学生信息的基础信息
         """
@@ -54,14 +54,14 @@ class StudentList:
         date = self.cursor.execute(sql).fetchall()
         return date
 
-    def getOneStudentInfo(self, user: str) -> list:
+    def get_one_student_info(self, user: str) -> list:
         """
         获取某个学生的基础信息
         """
         sql = f"SELECT * FROM student_info WHERE id='{user}'"
         return self.cursor.execute(sql).fetchall()
 
-    def changePassword(self, user: str, pad: str) -> bool:
+    def change_password(self, user: str, pad: str) -> bool:
         """
         修改登录密码
         """
@@ -73,7 +73,7 @@ class StudentList:
         self.conn.commit()
         return True
 
-    def intoStudentInfo(
+    def into_student_info(
             self, user: str, name: str, sex: str, age: str, address: str
     ) -> bool:
         """
@@ -90,7 +90,7 @@ class StudentList:
         self.conn.commit()
         return True
 
-    def selectIn(self, user: str) -> bool:
+    def select_info(self, user: str) -> bool:
         """
         判断某个学号是否存在于数据库中(student_info表) 存在return Ture
         """
@@ -100,11 +100,11 @@ class StudentList:
         else:
             return False
 
-    def delStudent(self, user: str) -> bool:
+    def delete_student(self, user: str) -> bool:
         """
         删除单个学生信息
         """
-        if self.selectIn(user):
+        if self.select_info(user):
             sql = f"DELETE FROM student_info WHERE id='{user}'"
             try:
                 self.cursor.execute(sql)
@@ -115,7 +115,7 @@ class StudentList:
         else:
             return False
 
-    def upDataStudentInfo(
+    def update_student(
             self, user: str, name: str, sex: str, age: str, address: str
     ) -> None:
         """
@@ -129,7 +129,7 @@ class StudentList:
         else:
             self.conn.commit()
 
-    def getAllCourse(self) -> list:
+    def get_all_course(self) -> list:
         """
         获取每个课程的人数
         """
@@ -139,7 +139,7 @@ class StudentList:
         )
         return self.cursor.execute(sql).fetchall()
 
-    def getAllStudentScore(self, user: str) -> list:
+    def get_all_student_score(self, user: str) -> list:
         """
         获取单个课程全部学生的成绩
         """
@@ -153,7 +153,7 @@ class StudentList:
             self.cursor.execute(sql).fetchall(),
         ]
 
-    def getOneStudentScore(self, user: str) -> dict:
+    def get_one_student_score(self, user: str) -> dict:
         """
         获取单个学生的课程成绩和基础信息
         """

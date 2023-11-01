@@ -1,12 +1,13 @@
-import jwt
 import time
+
+import jwt
 
 myKey = "ifjhasiufhsaiufnASIFUHasui"
 
 header = {"typ": "JWT", "alg": "HS256"}
 
 
-def MyPayLoad(user: str) -> dict:
+def my_payload(user: str) -> dict:
     return {
         "iat": time.time(),
         "ext": int(time.time()) + 60 * 60 * 20 * 30,
@@ -14,13 +15,13 @@ def MyPayLoad(user: str) -> dict:
     }
 
 
-def setToKen(user: str) -> str:
+def set_token(user: str) -> str:
     return jwt.encode(
-        payload=MyPayLoad(user), key=myKey, algorithm="HS256", headers=header
+        payload=my_payload(user), key=myKey, algorithm="HS256", headers=header
     )
 
 
-def getToKen(key: str) -> bool:
+def get_token(key: str) -> bool:
     try:
         data = jwt.decode(key, myKey, algorithms="HS256")
     except:
